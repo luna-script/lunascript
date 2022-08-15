@@ -1,8 +1,23 @@
 use std::str::FromStr;
+use crate::ast::AST;
 
 #[LALR]
 grammar;
 
-pub Num: i32 = {
-    r"[0-9]+" => i32::from_str(<>).unwrap(),
+pub Top: AST = Expr;
+
+Expr = {
+    <l:Expr> "+" <r:Term> => AST::BinOp(Box::new(l), "+".to_string(), Box::new(r)),
+    <l:Expr> "-" <r:Term> => AST::BinOp(Box::new(l), "-".to_string(), Box::new(r)),
+    Term
+};
+
+Term = Factor;
+
+Factor: AST = {
+    Num => AST::Number(<>)
+};
+
+Num: f64 = {
+    r"[0-9]+" => f64::from_str(<>).unwrap(),
 };
